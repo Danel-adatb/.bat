@@ -1,0 +1,8 @@
+Data format edition number  :1.6
+Laboratory name             :Joyson Safety Systems Hungary Kft.
+Laboratory contact name     :Gabor Sasvari
+Laboratory contact phone    :+36-46-40-8222
+Laboratory contact fax      :NOVALUE
+Laboratory contact email    :gabor.sasvari@eu.joysonsafety.com
+Laboratory test ref. number :NOVALUE
+Customer name               :NOVALUE
