@@ -1,3 +1,0 @@
-generator_mappa.bat a mappás verzió, de még nem bírtam normális működésre bírni, majd holnap orvosolom :)
-
-generator.bat az működik, elvileg (?) MOVIE és PHOTO mappa nélkül csinálja meg ahogy kérted
