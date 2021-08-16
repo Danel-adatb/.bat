@@ -17,13 +17,13 @@ if not defined FileName goto PromptName
 
 rem The string can be still invalid as file name. So check on
 rem first file creation if the file could be created successfully.
-(set /P FileNumber=<nul >"!FileName!1.mme") 2>nul
+(set /P FileNumber=<nul >"!FileName!01.mme") 2>nul
 rem writing into that file
-FOR /F "tokens=* delims=" %%x in (contents/c1.txt) DO echo %%x>> !FileName!1.mme
-echo Customer test ref. number   :!FileName!1>> !FileName!1.mme
-FOR /F "tokens=* delims=" %%x in (contents/c2.txt) DO echo %%x>> !FileName!1.mme
+FOR /F "tokens=* delims=" %%x in (contents/c1.txt) DO echo %%x>> %FileName%01.mme
+echo Customer test ref. number   :%FileName%01>> %FileName%01.mme
+FOR /F "tokens=* delims=" %%x in (contents/c2.txt) DO echo %%x>> %FileName%01.mme
 
-if not exist "!FileName!1.mme" (
+if not exist "%FileName%01.mme" (
     echo/
     echo The string !FileName! is most likely not valid for a file name.
     goto PromptName
@@ -57,7 +57,12 @@ if not "%FileNumber:~2%" == "" (
 rem Remove first digit of number if the number has two digits and
 rem the first digit is 0 to get the number later always interpreted
 rem as expected as decimal number and not as octal number.
-if not "%FileNumber:~1%" == "" if "%FileNumber:~0,1%" == "0" set "FileNumber=%FileNumber:~1%"
+
+
+if not "%FileNumber:~1%" == "" if "%FileNumber:~0,1%" == "0" (
+	set "FileNumber=%FileNumber:~1%"
+)
+	
 
 rem The file number is now in range 0 to 99. But 0 is not allowed.
 if "%FileNumber%" == "0" (
@@ -66,24 +71,49 @@ if "%FileNumber%" == "0" (
     goto PromptNumber
 )
 
-echo Create "!FileName!1.mme"
+rem Create the remaining files. The first one was created already before.
+
+for /L %%I in (1,1,%FileNumber%) do (
+	for /d %%d in (%cd%*) do (
+		if %%I LSS 10 (
+			set "folder=%%~d/%FileName%0%%I"
+		) else (
+			set "folder=%%~d/%FileName%%%I"
+		)
+		
+		if exist "!folder!" (
+			if not exist "!folder!\" echo "!folder!" exists as a file! 1>&2
+		) else (
+	    md "!folder!"
+		
+		)
+	)
+)
+
+echo Create "%FileName%01.mme"
 rem Generating files
 for /L %%I in (2,1,%FileNumber%) do (
-	echo Create "!FileName!%%I.mme" 2>"!FileName!%%I.mme"
+	if %%I LSS 10 (
+		echo Create "%FileName%0%%I.mme" 2>"%FileName%0%%I.mme"
+	) else (
+		echo Create "!FileName!%%I.mme" 2>"!FileName!%%I.mme"
+	)
 
 	rem writing into that file
+	if %%I LSS 10 (
+		FOR /F "tokens=* delims=" %%x in (contents/c1.txt) DO echo %%x>> %FileName%0%%I.mme
+		echo Customer test ref. number   :%FileName%0%%I>> %FileName%0%%I.mme
+		FOR /F "tokens=* delims=" %%x in (contents/c2.txt) DO echo %%x>> %FileName%0%%I.mme
+	) else (
 		FOR /F "tokens=* delims=" %%x in (contents/c1.txt) DO echo %%x>> !FileName!%%I.mme
 		echo Customer test ref. number   :!FileName!%%I>> !FileName!%%I.mme
 		FOR /F "tokens=* delims=" %%x in (contents/c2.txt) DO echo %%x>> !FileName!%%I.mme
+	)
 ) 
 
 rem moving the created files into their places
 cd /d "%~dp0"
-for %%I in (.) do set CurrDirName=%%~nxI
-
-
 for /f "eol=: delims=" %%f in ('dir /b /a-d *^|findstr /live ".bat"') do (
-    mkdir "%%~nf"
     move /y "%%f" "%%~nf\"
 )
 
