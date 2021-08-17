@@ -69,9 +69,9 @@ if "%FileNumber%" == "0" (
 rem Create the remaining files. The first one was created already before.
 rem getting the date
 
-
+cd /d "%~dp0"
 for /L %%I in (1,1,%FileNumber%) do (
-	for /d %%d in (%cd%*) do (
+	for /d %%d in (.) do (
 		if %%I LSS 10 (
 			set "folder=%%~d/%FileName%0%%I/PHOTO"
 		) else (
